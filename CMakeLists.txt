@@ -699,6 +699,7 @@ if(NOT APPLE AND NOT (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64"))
   option(WITH_CYCLES_HIP_BINARIES "Build Cycles AMD HIP binaries" OFF)
   # We only support RDNA1 (gfx101X) and newer. Vega and older generations have rendering artifacts and crashing issues.
   set(CYCLES_HIP_BINARIES_ARCH
+    gfx900 gfx90c gfx902 gfx906
     gfx1010 gfx1011 gfx1012
     gfx1030 gfx1031 gfx1032 gfx1034 gfx1035 gfx1036
     gfx1100 gfx1101 gfx1102 gfx1103 gfx1150 gfx1151 gfx1152
