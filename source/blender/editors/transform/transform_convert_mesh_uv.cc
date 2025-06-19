@@ -281,8 +281,7 @@ static void createTransUVs(bContext *C, TransInfo *t)
         continue;
       }
 
-      island_center = static_cast<IslandCenter *>(
-          MEM_callocN(sizeof(*island_center) * elementmap->total_islands, __func__));
+      island_center = MEM_calloc_arrayN<IslandCenter>(elementmap->total_islands, __func__);
     }
 
     BM_ITER_MESH (efa, &iter, em->bm, BM_FACES_OF_MESH) {
@@ -503,8 +502,9 @@ struct UVGroups {
 
     /* Now, count and set the index for the corners being transformed. */
     this->sd_len = 0;
-    TransData *td = tc->data;
-    for (int i = 0; i < tc->data_len; i++, td++) {
+    BLI_assert(tc->sorted_index_map);
+    for (const int i : Span(tc->sorted_index_map, tc->data_len)) {
+      TransData *td = &tc->data[i];
       if (!(td->flag & TD_SELECTED)) {
         /* The selected ones are sorted at the beginning. */
         break;
@@ -520,7 +520,7 @@ struct UVGroups {
     groups_offs_buffer_.reserve(this->sd_len);
     groups_offs_indices_.reserve((this->sd_len / 4) + 2);
 
-    td = tc->data;
+    TransData *td = tc->data;
     for (int i = 0; i < tc->data_len; i++, td++) {
       BMLoop *l_orig = static_cast<BMLoop *>(td->extra);
       if (BM_elem_index_get(l_orig) == -1) {
@@ -840,8 +840,9 @@ Array<TransDataEdgeSlideVert> transform_mesh_uv_edge_slide_data_create(const Tra
 
     /* First we just need to "clean up" the neighboring loops.
      * This way we can identify where a group of sliding edges starts and where it ends. */
-    TransData *td = tc->data;
-    for (int i = 0; i < tc->data_len; i++, td++) {
+    BLI_assert(tc->sorted_index_map);
+    for (const int i : Span(tc->sorted_index_map, tc->data_len)) {
+      TransData *td = &tc->data[i];
       if (!(td->flag & TD_SELECTED)) {
         /* The selected ones are sorted at the beginning. */
         break;

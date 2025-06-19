@@ -122,8 +122,7 @@ static bool edbm_inset_init(bContext *C, wmOperator *op, const bool is_modal)
     RNA_float_set(op->ptr, "depth", 0.0f);
   }
 
-  op->customdata = opdata = static_cast<InsetData *>(
-      MEM_mallocN(sizeof(InsetData), "inset_operator_data"));
+  op->customdata = opdata = MEM_mallocN<InsetData>("inset_operator_data");
 
   uint objects_used_len = 0;
 
@@ -579,7 +578,7 @@ void MESH_OT_inset(wmOperatorType *ot)
   ot->idname = "MESH_OT_inset";
   ot->description = "Inset new faces into selected faces";
 
-  /* api callbacks */
+  /* API callbacks. */
   ot->invoke = edbm_inset_invoke;
   ot->modal = edbm_inset_modal;
   ot->exec = edbm_inset_exec;

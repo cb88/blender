@@ -184,8 +184,11 @@ enum eTFlag {
 
   /** Special flag for when the transform code is called after keys have been duplicated. */
   T_DUPLICATED_KEYFRAMES = 1 << 26,
+
+  /** Transform origin. */
+  T_ORIGIN = 1 << 27,
 };
-ENUM_OPERATORS(eTFlag, T_DUPLICATED_KEYFRAMES);
+ENUM_OPERATORS(eTFlag, T_ORIGIN);
 
 /** #TransInfo.modifiers */
 enum eTModifier {
@@ -197,6 +200,7 @@ enum eTModifier {
   MOD_NODE_ATTACH = 1 << 5,
   MOD_SNAP_FORCED = 1 << 6,
   MOD_EDIT_SNAP_SOURCE = 1 << 7,
+  MOD_NODE_FRAME = 1 << 8,
 };
 ENUM_OPERATORS(eTModifier, MOD_EDIT_SNAP_SOURCE)
 
@@ -325,6 +329,8 @@ enum {
   TFM_MODAL_EDIT_SNAP_SOURCE_OFF = 35,
 
   TFM_MODAL_PASSTHROUGH_NAVIGATE = 36,
+
+  TFM_MODAL_NODE_FRAME = 37,
 };
 
 /** \} */
@@ -711,6 +717,21 @@ struct TransDataContainer {
   };
 
   TransCustomDataContainer custom;
+
+  /**
+   * Array of indices for the `data`, `data_ext`, and `data_2d` arrays.
+   *
+   * When using this index map to traverse the arrays, they will be sorted primarily by selection
+   * state (selected before unselected). Depending on the sort function used (see below),
+   * unselected items are then sorted by their "distance" for proportional editing.
+   *
+   * NOTE: this is set to `nullptr` by default; use one of the sorting functions below to
+   * initialize the array.
+   *
+   * \see #sort_trans_data_selected_first Sorts only by selection state.
+   * \see #sort_trans_data_dist Sorts by selection state and distance.
+   */
+  int *sorted_index_map;
 };
 
 struct TransInfo {
@@ -803,8 +824,8 @@ struct TransInfo {
   /** Orientation matrix of the current space. */
   float spacemtx[3][3];
   float spacemtx_inv[3][3];
-  /** Name of the current space, MAX_NAME. */
-  char spacename[64];
+  /** Name of the current space. */
+  char spacename[/*MAX_NAME*/ 64];
 
   /*************** NEW STUFF *********************/
   /** Event type used to launch transform. */

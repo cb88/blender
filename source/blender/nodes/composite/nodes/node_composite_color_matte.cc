@@ -26,8 +26,6 @@
 
 namespace blender::nodes::node_composite_color_matte_cc {
 
-NODE_STORAGE_FUNCS(NodeChroma)
-
 static void cmp_node_color_matte_declare(NodeDeclarationBuilder &b)
 {
   b.add_input<decl::Color>("Image").default_value({1.0f, 1.0f, 1.0f, 1.0f});
@@ -59,17 +57,6 @@ static void cmp_node_color_matte_declare(NodeDeclarationBuilder &b)
 
   b.add_output<decl::Color>("Image");
   b.add_output<decl::Float>("Matte");
-}
-
-static void node_composit_init_color_matte(bNodeTree * /*ntree*/, bNode *node)
-{
-  NodeChroma *c = MEM_callocN<NodeChroma>(__func__);
-  node->storage = c;
-  c->t1 = 0.01f;
-  c->t2 = 0.1f;
-  c->t3 = 0.1f;
-  c->fsize = 0.0f;
-  c->fstrength = 1.0f;
 }
 
 using namespace blender::compositor;
@@ -131,7 +118,7 @@ static void node_build_multi_function(blender::nodes::NodeMultiFunctionBuilder &
 
 }  // namespace blender::nodes::node_composite_color_matte_cc
 
-void register_node_type_cmp_color_matte()
+static void register_node_type_cmp_color_matte()
 {
   namespace file_ns = blender::nodes::node_composite_color_matte_cc;
 
@@ -144,11 +131,9 @@ void register_node_type_cmp_color_matte()
   ntype.nclass = NODE_CLASS_MATTE;
   ntype.declare = file_ns::cmp_node_color_matte_declare;
   ntype.flag |= NODE_PREVIEW;
-  ntype.initfunc = file_ns::node_composit_init_color_matte;
-  blender::bke::node_type_storage(
-      ntype, "NodeChroma", node_free_standard_storage, node_copy_standard_storage);
   ntype.gpu_fn = file_ns::node_gpu_material;
   ntype.build_multi_function = file_ns::node_build_multi_function;
 
   blender::bke::node_register_type(ntype);
 }
+NOD_REGISTER_NODE(register_node_type_cmp_color_matte)

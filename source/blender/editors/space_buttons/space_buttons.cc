@@ -28,6 +28,8 @@
 #include "BKE_screen.hh"
 #include "BKE_shader_fx.h"
 
+#include "BLT_translation.hh"
+
 #include "ED_buttons.hh"
 #include "ED_screen.hh"
 #include "ED_space_api.hh"
@@ -57,7 +59,7 @@ static SpaceLink *buttons_create(const ScrArea * /*area*/, const Scene * /*scene
   ARegion *region;
   SpaceProperties *sbuts;
 
-  sbuts = static_cast<SpaceProperties *>(MEM_callocN(sizeof(SpaceProperties), "initbuts"));
+  sbuts = MEM_callocN<SpaceProperties>("initbuts");
   sbuts->spacetype = SPACE_PROPERTIES;
   sbuts->mainb = sbuts->mainbuser = BCONTEXT_OBJECT;
   sbuts->visible_tabs = uint(-1); /* 0xFFFFFFFF - All tabs visible by default. */
@@ -123,8 +125,7 @@ static void buttons_init(wmWindowManager * /*wm*/, ScrArea *area)
   SpaceProperties *sbuts = (SpaceProperties *)area->spacedata.first;
 
   if (sbuts->runtime == nullptr) {
-    sbuts->runtime = static_cast<SpaceProperties_Runtime *>(
-        MEM_mallocN(sizeof(SpaceProperties_Runtime), __func__));
+    sbuts->runtime = MEM_mallocN<SpaceProperties_Runtime>(__func__);
     sbuts->runtime->search_string[0] = '\0';
     sbuts->runtime->tab_search_results = BLI_BITMAP_NEW(BCONTEXT_TOT * 2, __func__);
   }
@@ -192,8 +193,15 @@ void ED_buttons_visible_tabs_menu(bContext *C, uiLayout *layout, void * /*arg*/)
   };
 
   for (blender::StringRefNull item : filter_items) {
-    uiItemR(layout, &ptr, item, UI_ITEM_R_TOGGLE, std::nullopt, ICON_NONE);
+    layout->prop(&ptr, item, UI_ITEM_R_TOGGLE, std::nullopt, ICON_NONE);
   }
+}
+
+void ED_buttons_navbar_menu(bContext *C, uiLayout *layout, void * /*arg*/)
+{
+  ED_screens_region_flip_menu_create(C, layout, nullptr);
+  layout->operator_context_set(WM_OP_INVOKE_DEFAULT);
+  layout->op("SCREEN_OT_region_toggle", IFACE_("Hide"), ICON_NONE);
 }
 
 blender::Vector<eSpaceButtons_Context> ED_buttons_tabs_list(const SpaceProperties *sbuts,

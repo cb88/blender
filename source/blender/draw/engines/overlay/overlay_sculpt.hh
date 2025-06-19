@@ -76,8 +76,8 @@ class Sculpts : Overlay {
         sub.state_set(DRW_STATE_WRITE_COLOR | DRW_STATE_DEPTH_LESS_EQUAL | DRW_STATE_BLEND_MUL,
                       state.clipping_plane_count);
         sub.shader_set(res.shaders->sculpt_mesh.get());
-        sub.push_constant("maskOpacity", mask_opacity);
-        sub.push_constant("faceSetsOpacity", face_set_opacity);
+        sub.push_constant("mask_opacity", mask_opacity);
+        sub.push_constant("face_sets_opacity", face_set_opacity);
         mesh_ps_ = &sub;
       }
       {
@@ -210,7 +210,7 @@ class Sculpts : Overlay {
 
     const bool use_pbvh = BKE_sculptsession_use_pbvh_draw(ob_ref.object, state.rv3d);
     if (use_pbvh) {
-      ResourceHandle handle = manager.resource_handle_for_sculpt(ob_ref);
+      ResourceHandle handle = manager.unique_handle_for_sculpt(ob_ref);
 
       SculptBatchFeature sculpt_batch_features_ = (show_face_set_ ? SCULPT_BATCH_FACE_SET :
                                                                     SCULPT_BATCH_DEFAULT) |

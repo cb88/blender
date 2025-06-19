@@ -213,8 +213,7 @@ static wmOperatorStatus ptcache_bake_invoke(bContext *C, wmOperator *op, const w
 {
   bool all = STREQ(op->type->idname, "PTCACHE_OT_bake_all");
 
-  PointCacheJob *job = static_cast<PointCacheJob *>(
-      MEM_mallocN(sizeof(PointCacheJob), "PointCacheJob"));
+  PointCacheJob *job = MEM_mallocN<PointCacheJob>("PointCacheJob");
   job->wm = CTX_wm_manager(C);
   job->baker = ptcache_baker_create(C, op, all);
   job->baker->bake_job = job;
@@ -294,7 +293,7 @@ void PTCACHE_OT_bake_all(wmOperatorType *ot)
   ot->description = "Bake all physics";
   ot->idname = "PTCACHE_OT_bake_all";
 
-  /* api callbacks */
+  /* API callbacks. */
   ot->exec = ptcache_bake_exec;
   ot->invoke = ptcache_bake_invoke;
   ot->modal = ptcache_bake_modal;
@@ -313,7 +312,7 @@ void PTCACHE_OT_free_bake_all(wmOperatorType *ot)
   ot->idname = "PTCACHE_OT_free_bake_all";
   ot->description = "Delete all baked caches of all objects in the current scene";
 
-  /* api callbacks */
+  /* API callbacks. */
   ot->exec = ptcache_free_bake_all_exec;
   ot->poll = ptcache_bake_all_poll;
 
@@ -352,7 +351,7 @@ void PTCACHE_OT_bake(wmOperatorType *ot)
   ot->description = "Bake physics";
   ot->idname = "PTCACHE_OT_bake";
 
-  /* api callbacks */
+  /* API callbacks. */
   ot->exec = ptcache_bake_exec;
   ot->invoke = ptcache_bake_invoke;
   ot->modal = ptcache_bake_modal;
@@ -371,7 +370,7 @@ void PTCACHE_OT_free_bake(wmOperatorType *ot)
   ot->description = "Delete physics bake";
   ot->idname = "PTCACHE_OT_free_bake";
 
-  /* api callbacks */
+  /* API callbacks. */
   ot->exec = ptcache_free_bake_exec;
   ot->poll = ptcache_poll;
 
@@ -385,7 +384,7 @@ void PTCACHE_OT_bake_from_cache(wmOperatorType *ot)
   ot->description = "Bake from cache";
   ot->idname = "PTCACHE_OT_bake_from_cache";
 
-  /* api callbacks */
+  /* API callbacks. */
   ot->exec = ptcache_bake_from_cache_exec;
   ot->poll = ptcache_poll;
 
@@ -440,7 +439,7 @@ void PTCACHE_OT_add(wmOperatorType *ot)
   ot->description = "Add new cache";
   ot->idname = "PTCACHE_OT_add";
 
-  /* api callbacks */
+  /* API callbacks. */
   ot->exec = ptcache_add_new_exec;
   ot->poll = ptcache_add_remove_poll;
 
@@ -454,7 +453,7 @@ void PTCACHE_OT_remove(wmOperatorType *ot)
   ot->description = "Delete current cache";
   ot->idname = "PTCACHE_OT_remove";
 
-  /* api callbacks */
+  /* API callbacks. */
   ot->exec = ptcache_remove_exec;
   ot->poll = ptcache_add_remove_poll;
 

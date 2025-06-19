@@ -34,6 +34,7 @@
 #include "DEG_depsgraph_build.hh"
 
 #include "ANIM_action.hh"
+#include "ANIM_armature.hh"
 #include "ANIM_bone_collections.hh"
 #include "ANIM_keyframing.hh"
 #include "ANIM_rna.hh"
@@ -640,8 +641,8 @@ static void createTransPose(bContext * /*C*/, TransInfo *t)
         }
       }
 
-      PoseInitData_Mirror *pid = static_cast<PoseInitData_Mirror *>(
-          MEM_mallocN((total_mirrored + 1) * sizeof(PoseInitData_Mirror), "PoseInitData_Mirror"));
+      PoseInitData_Mirror *pid = MEM_malloc_arrayN<PoseInitData_Mirror>((total_mirrored + 1),
+                                                                        "PoseInitData_Mirror");
 
       /* Trick to terminate iteration. */
       pid[total_mirrored].pchan = nullptr;
@@ -747,7 +748,9 @@ static void createTransArmatureVerts(bContext * /*C*/, TransInfo *t)
     LISTBASE_FOREACH (EditBone *, ebo, edbo) {
       const int data_len_prev = tc->data_len;
 
-      if (EBONE_VISIBLE(arm, ebo) && !(ebo->flag & BONE_EDITMODE_LOCKED)) {
+      if (blender::animrig::bone_is_visible_editbone(arm, ebo) &&
+          !(ebo->flag & BONE_EDITMODE_LOCKED))
+      {
         if (ELEM(t->mode, TFM_BONESIZE, TFM_BONE_ENVELOPE_DIST)) {
           if (ebo->flag & BONE_SELECTED) {
             tc->data_len++;
@@ -780,8 +783,7 @@ static void createTransArmatureVerts(bContext * /*C*/, TransInfo *t)
     }
 
     if (mirror) {
-      BoneInitData *bid = static_cast<BoneInitData *>(
-          MEM_mallocN((total_mirrored + 1) * sizeof(BoneInitData), "BoneInitData"));
+      BoneInitData *bid = MEM_malloc_arrayN<BoneInitData>((total_mirrored + 1), "BoneInitData");
 
       /* Trick to terminate iteration. */
       bid[total_mirrored].bone = nullptr;
@@ -819,7 +821,9 @@ static void createTransArmatureVerts(bContext * /*C*/, TransInfo *t)
       /* (length == 0.0) on extrude, used for scaling radius of bone points. */
       ebo->oldlength = ebo->length;
 
-      if (EBONE_VISIBLE(arm, ebo) && !(ebo->flag & BONE_EDITMODE_LOCKED)) {
+      if (blender::animrig::bone_is_visible_editbone(arm, ebo) &&
+          !(ebo->flag & BONE_EDITMODE_LOCKED))
+      {
         if (t->mode == TFM_BONE_ENVELOPE) {
           if (ebo->flag & BONE_ROOTSEL) {
             td->val = &ebo->rad_head;
@@ -1054,7 +1058,9 @@ static void recalcData_edit_armature(TransInfo *t)
 
       if (ebo_parent) {
         /* If this bone has a parent tip that has been moved. */
-        if (EBONE_VISIBLE(arm, ebo_parent) && (ebo_parent->flag & BONE_TIPSEL)) {
+        if (blender::animrig::bone_is_visible_editbone(arm, ebo_parent) &&
+            (ebo_parent->flag & BONE_TIPSEL))
+        {
           copy_v3_v3(ebo->head, ebo_parent->tail);
           if (t->mode == TFM_BONE_ENVELOPE) {
             ebo->rad_head = ebo_parent->rad_tail;
@@ -1486,7 +1492,7 @@ void transform_convert_pose_transflags_update(Object *ob, const int mode, const 
 
   LISTBASE_FOREACH (bPoseChannel *, pchan, &ob->pose->chanbase) {
     bone = pchan->bone;
-    if (PBONE_VISIBLE(arm, bone)) {
+    if (blender::animrig::bone_is_visible_pchan(arm, pchan)) {
       if (bone->flag & BONE_SELECTED) {
         bone->flag |= BONE_TRANSFORM;
       }

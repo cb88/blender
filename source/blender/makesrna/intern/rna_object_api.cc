@@ -342,7 +342,7 @@ static void rna_Object_calc_matrix_camera(Object *ob,
                                           float scalex,
                                           float scaley)
 {
-  const Object *ob_eval = DEG_get_evaluated_object(depsgraph, ob);
+  const Object *ob_eval = DEG_get_evaluated(depsgraph, ob);
   CameraParams params;
 
   /* setup parameters */
@@ -569,7 +569,7 @@ static Object *eval_object_ensure(Object *ob,
       depsgraph = CTX_data_ensure_evaluated_depsgraph(C);
     }
     if (depsgraph != nullptr) {
-      ob = DEG_get_evaluated_object(depsgraph, ob);
+      ob = DEG_get_evaluated(depsgraph, ob);
     }
     if (ob == nullptr || BKE_object_get_evaluated_mesh(ob) == nullptr) {
       BKE_reportf(
@@ -1093,7 +1093,7 @@ void RNA_api_object(StructRNA *srna)
   func = RNA_def_function(srna, "shape_key_add", "rna_Object_shape_key_add");
   RNA_def_function_ui_description(func, "Add shape key to this object");
   RNA_def_function_flag(func, FUNC_USE_CONTEXT | FUNC_USE_REPORTS);
-  RNA_def_string(func, "name", "Key", 0, "", "Unique name for the new keyblock"); /* optional */
+  RNA_def_string(func, "name", "Key", 0, "", "Unique name for the new key-block"); /* optional */
   RNA_def_boolean(func, "from_mix", true, "", "Create new shape from existing mix of shapes");
   parm = RNA_def_pointer(func, "key", "ShapeKey", "", "New shape keyblock");
   RNA_def_parameter_flags(parm, PropertyFlag(0), PARM_RNAPTR);

@@ -85,11 +85,11 @@ void uiTemplateLayers(uiLayout *layout,
   /* layers are laid out going across rows, with the columns being divided into groups */
 
   for (int group = 0; group < groups; group++) {
-    uiLayout *uCol = uiLayoutColumn(layout, true);
+    uiLayout *uCol = &layout->column(true);
 
     for (int row = 0; row < 2; row++) {
-      uiLayout *uRow = uiLayoutRow(uCol, true);
-      uiBlock *block = uiLayoutGetBlock(uRow);
+      uiLayout *uRow = &uCol->row(true);
+      uiBlock *block = uRow->block();
       int layer = groups * cols_per_group * row + cols_per_group * group;
 
       /* add layers as toggle buts */

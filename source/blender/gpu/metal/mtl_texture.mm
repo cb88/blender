@@ -610,7 +610,7 @@ void gpu::MTLTexture::update_sub(
 
     if (is_depth_format) {
       if (type_ == GPU_TEXTURE_2D || type_ == GPU_TEXTURE_2D_ARRAY) {
-        /* Workaround for crash in validation layer when blitting to depth2D target with
+        /* Workaround for crash in validation layer when blitting to sampler2DDepth target with
          * dimensions (1, 1, 1); */
         if (extent[0] == 1 && extent[1] == 1 && extent[2] == 1 && totalsize == 4) {
           can_use_direct_blit = false;
@@ -1255,9 +1255,8 @@ void gpu::MTLTexture::generate_mipmap()
   }
 
   /* Verify if we can perform mipmap generation. */
-  if (format_ == GPU_DEPTH_COMPONENT32F || format_ == GPU_DEPTH_COMPONENT24 ||
-      format_ == GPU_DEPTH_COMPONENT16 || format_ == GPU_DEPTH32F_STENCIL8 ||
-      format_ == GPU_DEPTH24_STENCIL8)
+  if (format_ == GPU_DEPTH_COMPONENT32F || format_ == GPU_DEPTH_COMPONENT16 ||
+      format_ == GPU_DEPTH32F_STENCIL8)
   {
     MTL_LOG_WARNING("Cannot generate mipmaps for textures using DEPTH formats");
     return;
@@ -2185,7 +2184,7 @@ bool gpu::MTLTexture::init_internal(GPUTexture *src,
   /* Stencil view support. */
   texture_view_stencil_ = false;
   if (use_stencil) {
-    BLI_assert(ELEM(format_, GPU_DEPTH24_STENCIL8, GPU_DEPTH32F_STENCIL8));
+    BLI_assert(ELEM(format_, GPU_DEPTH32F_STENCIL8));
     texture_view_stencil_ = true;
   }
 
@@ -2645,13 +2644,23 @@ void MTLPixelBuffer::unmap()
   }
 }
 
-int64_t MTLPixelBuffer::get_native_handle()
+GPUPixelBufferNativeHandle MTLPixelBuffer::get_native_handle()
 {
-  if (buffer_ == nil) {
-    return 0;
+  GPUPixelBufferNativeHandle native_handle;
+
+  /* Only supported with unified memory currently. */
+  MTLContext *ctx = MTLContext::get();
+  BLI_assert(ctx);
+  if (![ctx->device hasUnifiedMemory]) {
+    return native_handle;
   }
 
-  return reinterpret_cast<int64_t>(buffer_);
+  /* Just get pointer to unified memory. No need to unmap. */
+  map();
+  native_handle.handle = reinterpret_cast<int64_t>(buffer_);
+  native_handle.size = size_;
+
+  return native_handle;
 }
 
 size_t MTLPixelBuffer::get_size()
