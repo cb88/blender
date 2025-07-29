@@ -75,6 +75,10 @@ void RNA_def_struct_clear_flag(StructRNA *srna, int flag);
 void RNA_def_struct_property_tags(StructRNA *srna, const EnumPropertyItem *prop_tag_defines);
 void RNA_def_struct_refine_func(StructRNA *srna, const char *refine);
 void RNA_def_struct_idprops_func(StructRNA *srna, const char *idproperties);
+/**
+ * Define the callback to access the struct's system IDProperty root.
+ */
+void RNA_def_struct_system_idprops_func(StructRNA *srna, const char *system_idproperties);
 void RNA_def_struct_register_funcs(StructRNA *srna,
                                    const char *reg,
                                    const char *unreg,
@@ -446,6 +450,12 @@ void RNA_def_property_enum_default(PropertyRNA *prop, int value);
 void RNA_def_property_string_default(PropertyRNA *prop, const char *value);
 
 void RNA_def_property_ui_text(PropertyRNA *prop, const char *name, const char *description);
+
+void RNA_def_property_deprecated(PropertyRNA *prop,
+                                 const char *note,
+                                 short version,
+                                 short removal_version);
+
 /**
  * The values hare are a little confusing:
  *
